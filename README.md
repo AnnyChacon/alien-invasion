@@ -1,1 +1,5 @@
-# alien-invasion
+# Alien Invasion
+
+#### **Run**
+
+``node index.js``
