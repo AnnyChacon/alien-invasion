@@ -6,16 +6,18 @@ file.read('./Files/input.txt', function (err, data) {
         console.error(err);
         return;
     }
+    let output = [];
+    let error = false;
     const lines = data.split('\n');
     const n = Number(lines[0]);
     let line = [];
     let numberLine = 1;
     if (n >= 1 && n <= 30) {
         for (let i = 0; i < n; i++) {
-            if(numberLine < lines.length){
+            if(!error && numberLine < lines.length){
                 line = lines[numberLine].split(' ').map(Number);
                 numberLine++;
-                if(typeof line[0] !== 'undefined' && typeof line[1] !== 'undefined' && line[0] >= 4 && line[0] <= 100 && line[1] >= 4 && line[1] <= 100){
+                if(!error && numberLine < lines.length && typeof line[0] !== 'undefined' && typeof line[1] !== 'undefined' && typeof line[2] !== 'undefined' && line[0] >= 4 && line[0] <= 100 && line[1] >= 4 && line[1] <= 100){
                     let ship = [];
                     for (let j = numberLine; j < (line[0] + numberLine); j++) {
                         let subLine = lines[j].split(' ').map(value => {
@@ -34,11 +36,44 @@ file.read('./Files/input.txt', function (err, data) {
                         }
                         return 0;
                         }).sort((a, b) => a.area - b.area).sort((a, b) => a.level - b.level);
+                    let leyersString = [];
+                    layers.forEach(layer => {
+                        if(typeof leyersString[layer.level] !== 'undefined'){
+                            leyersString[layer.level] += `;${layer.id}:${layer.centerPointX},${layer.centerPointY}`;
+                        }else{
+                            leyersString[layer.level] = `${layer.id}:${layer.centerPointX},${layer.centerPointY}`;
+                        }
+                    });
+                    output.push(leyersString.join(' '));
                     ship = [];
                     layers = [];
                 }
+            }else{
+                error = true;
+                console.error('Something went wrong, unexpected X, Y or Scale value.');
+                break;
             }
         }
+        if(!error && output.length){
+            file.write('./Files/output.txt',output.join('\n'), function (err) {
+                if (err){
+                    console.error('There was a mistake',err);
+                }
+            });
+            console.log('File generated successfully!');
+            console.log('output.txt');
+            file.read('./Files/output.txt', function (err, data) {
+                if(err){
+                    console.error(err);
+                    return;
+                }
+                console.log(data);
+            });
+        }else{
+            console.error('Something went wrong, there is nothing to write.');
+        }
+    }else{
+        console.error('Something went wrong, unexpected N value.');
     }
 })
 
