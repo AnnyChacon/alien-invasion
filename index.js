@@ -1,5 +1,4 @@
 const file = require('./file');
-const fs = require('fs');
 
 file.read('./Files/input.txt', function (err, data) {
     if(err){
