@@ -23,15 +23,17 @@ file.read('./Files/input.txt', function (err, data) {
                 ship.push(subLine);
             }
             numberLine += line[0];
-            let layers = getLayers(ship);
+            let layers = getAreasCenterPoint(getLayers(ship), line[2]);
             ships.push({
                 id: i,
-                dx: line[0],
-                dy: line[1],
-                l: line[2],
+                width: line[0],
+                height: line[1],
+                scale: line[2],
                 ship: ship,
                 layers: layers,
             });
+            ship = [];
+            layers = [];
         }
     }
 })
@@ -43,20 +45,20 @@ function getLayers(ship) {
         for (let j = 0; j < ship[i].length; j++) {
             found = false;
             if(ship[i][j] !== ' '){
-                layers.forEach(layout => {
-                    if(layout.letter === ship[i][j]){
+                layers.forEach(layer => {
+                    if(layer.id === ship[i][j]){
                         found = true;
-                        if(i < layout.xa){
-                            layout.xa = i;
+                        if(i < layer.xa){
+                            layer.xa = i;
                         }
-                        if(i > layout.xb){
-                            layout.xb = i;
+                        if(i > layer.xb){
+                            layer.xb = i;
                         }
-                        if(j < layout.ya){
-                            layout.ya = j;
+                        if(j < layer.ya){
+                            layer.ya = j;
                         }
-                        if(j > layout.yb){
-                            layout.yb = j;
+                        if(j > layer.yb){
+                            layer.yb = j;
                         }
                     }
                 });
@@ -72,5 +74,16 @@ function getLayers(ship) {
             }
         }
     }
+    return layers;
+}
+
+function getAreasCenterPoint(layers, scale) {
+    layers.forEach(layer => {
+        layer.base = layer.yb - layer.ya + 1;
+        layer.height = layer.xb - layer.xa + 1;
+        layer.area = layer.base * layer.height * scale;
+        layer.centerPointX = ( ( layer.height / 2 ) + layer.xa ) * scale;
+        layer.centerPointY = ( ( layer.base / 2 ) + layer.ya ) * scale;
+    });
     return layers;
 }
